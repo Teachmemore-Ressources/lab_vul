@@ -59,7 +59,7 @@ fi
 read -p "Souhaitez-vous lancer le conteneur Juice Shop maintenant ? (y/n) : " launch_juice
 if [ "$launch_juice" == "y" ]; then
   echo "Lancement du conteneur Juice Shop sur le port 3000..."
-  sudo docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop
+  sudo docker run -dt -p 3000:3000 bkimminich/juice-shop
 else
   echo "Installation terminée. Vous pouvez lancer Juice Shop plus tard avec la commande suivante :"
   echo "sudo docker run --dt -p 127.0.0.1:3000:3000 bkimminich/juice-shop"
