@@ -55,14 +55,38 @@ if [ "$add_to_group" == "y" ]; then
   echo "Déconnexion requise pour appliquer les changements. Veuillez vous déconnecter et reconnecter."
 fi
 
-# Lancer le conteneur Juice Shop
-read -p "Souhaitez-vous lancer le conteneur Juice Shop maintenant ? (y/n) : " launch_juice
-if [ "$launch_juice" == "y" ]; then
-  echo "Lancement du conteneur Juice Shop sur le port 3000..."
-  sudo docker run -dt -p 3000:3000 bkimminich/juice-shop
-else
-  echo "Installation terminée. Vous pouvez lancer Juice Shop plus tard avec la commande suivante :"
-  echo "sudo docker run --dt -p 127.0.0.1:3000:3000 bkimminich/juice-shop"
+# Installer Docker Compose
+echo "Installation de Docker Compose..."
+sudo apt install -y curl
+DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)
+sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Vérifier l'installation de Docker Compose
+echo "Vérification de l'installation de Docker Compose..."
+docker-compose --version
+if [ $? -ne 0 ]; then
+  echo "Docker Compose n'a pas été installé correctement. Vérifiez les étapes précédentes."
+  exit 1
 fi
 
-echo "Script terminé."
+# Lancer le conteneur Juice Shop avec Docker Compose
+read -p "Souhaitez-vous créer un fichier Docker Compose pour Juice Shop et le lancer ? (y/n) : " setup_compose
+if [ "$setup_compose" == "y" ]; then
+  echo "Création du fichier docker-compose.yml..."
+  cat <<EOL > docker-compose.yml
+version: '3'
+services:
+  juice-shop:
+    image: bkimminich/juice-shop
+    ports:
+      - "3000:3000"
+EOL
+  echo "Lancement de Juice Shop avec Docker Compose..."
+  sudo docker-compose up -d
+else
+  echo "Installation terminée. Vous pouvez utiliser Docker Compose plus tard avec :"
+  echo "sudo docker-compose up -d"
+fi
+
+echo "Script terminé. Profitez de votre environnement Docker et Docker Compose !"
